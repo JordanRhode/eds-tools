@@ -7,8 +7,8 @@ const org = process.env.ORG;
 const repo = process.env.REPO;
 const token = process.env.TOKEN;
 
-const inputData = 'https://main--evident-website-eds--evidentscientific.aem.page/en/downloads/download-list.json';
-const outputPathPrefix = '/en/downloads/files';
+const inputData = 'https://main--evident-website-eds--evidentscientific.aem.live/en/downloads/manuals/download-list.json';
+const outputPathPrefix = '/en/downloads/manuals/files';
 
 const templateSource = fs.readFileSync(path.join(__dirname, 'page-template.hbs'), 'utf-8');
 const template = Handlebars.compile(templateSource);
@@ -86,26 +86,9 @@ function buildFileName(row) {
   return parts.join('-');
 }
 
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-let lastRequestTime = 0;
-let requestCount = 0;
+const BATCH_SIZE = 10;
 
 async function savePage(html, filePath) {
-  const now = Date.now();
-  if (now - lastRequestTime >= 1000) {
-    lastRequestTime = now;
-    requestCount = 0;
-  }
-  if (requestCount >= 10) {
-    const waitTime = 1000 - (now - lastRequestTime);
-    await delay(waitTime);
-    lastRequestTime = Date.now();
-    requestCount = 0;
-  }
-  requestCount++;
   const blob = new Blob([html], { type: 'text/html' });
   const body = new FormData();
   body.append('data', blob);
@@ -116,19 +99,19 @@ async function savePage(html, filePath) {
   };
   const fullpath = `https://admin.da.live/source/${org}/${repo}${filePath}`;
   const resp = await fetch(fullpath, opts);
-  return resp.status;
+  return { status: resp.status, filePath };
 }
 
 (async function init() {
   const resp = await fetch(inputData);
   const json = await resp.json();
-  const rows = json.data;
+  const rows = json.data?.filter((row) => row.Link);
 
   const codeMap = buildCodeMap(rows);
   const results = [];
   const fileNameCounts = {};
 
-  for (const row of rows) {
+  const tasks = rows.map((row) => {
     const data = mapRowToData(row, codeMap);
     const page = template(data);
     let fileName = buildFileName(row);
@@ -139,10 +122,19 @@ async function savePage(html, filePath) {
       fileName = `${fileName}-copy-${fileNameCounts[fileName]}`;
     }
     const filePath = `${outputPathPrefix}/${fileName}.html`;
-    const status = await savePage(page, filePath);
-    const line = `${status} ${filePath}`;
-    console.log(line);
-    results.push(line);
+    return { page, filePath };
+  });
+
+  for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
+    const batch = tasks.slice(i, i + BATCH_SIZE);
+    const batchResults = await Promise.all(
+      batch.map(({ page, filePath }) => savePage(page, filePath)),
+    );
+    for (const { status, filePath } of batchResults) {
+      const line = `${status} ${filePath}`;
+      console.log(line);
+      results.push(line);
+    }
   }
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
