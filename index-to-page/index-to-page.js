@@ -8,8 +8,8 @@ const repo = process.env.REPO;
 const token = process.env.TOKEN;
 
 const inputData =
-  "https://main--evident-website-eds--evidentscientific.aem.live/en/downloads/webinars/download-list.json";
-const outputPathPrefix = "/en/downloads/webinars/files";
+  "https://main--evident-website-eds--evidentscientific.aem.live/en/downloads/download-list.json";
+const outputPathPrefix = "/en/downloads/files";
 
 const templateSource = fs.readFileSync(
   path.join(__dirname, "page-template.hbs"),
@@ -125,8 +125,13 @@ function buildPageData(rowsInGroup) {
     }
 
     if (row.Link) {
-      const language = (row.Language || "").trim() || "Unspecified";
-      linkParts.push(`${language}|${row.Link}`);
+      const language = (row.Language || "").trim();
+      if (language) {
+        linkParts.push(`${language}|${row.Link}`);
+      }
+      else {
+        linkParts.push(row.Link);
+      }
     }
   }
 
