@@ -8,8 +8,8 @@ const repo = process.env.REPO;
 const token = process.env.TOKEN;
 
 const inputData =
-  "https://main--evident-website-eds--evidentscientific.aem.live/en/downloads/brochures/download-list.json";
-const outputPathPrefix = "/en/downloads/brochures/files";
+  "https://main--evident-website-eds--evidentscientific.aem.live/en/downloads/webinars/download-list.json";
+const outputPathPrefix = "/en/downloads/webinars/files";
 
 const templateSource = fs.readFileSync(
   path.join(__dirname, "page-template.hbs"),
@@ -96,14 +96,6 @@ function buildPageData(rowsInGroup) {
     "enable-form": "",
   };
 
-  // for (const code of Object.values(LANGUAGE_CODES)) {
-  //   data[`title-${code}`] = "";
-  //   data[`product-${code}`] = "";
-  //   data[`type-${code}`] = "";
-  //   data[`marketing-content-${code}`] = "";
-  //   data[`disclaimer-content-${code}`] = "";
-  // }
-
   const linkParts = [];
   let anyEnableForm = false;
 
@@ -118,19 +110,23 @@ function buildPageData(rowsInGroup) {
 
     const code = LANGUAGE_CODES[row.Language];
     if (code) {
+      data[`title-${code}`] = row.Title || "";
+      data[`product-${code}`] = row.Product || "";
+      data[`type-${code}`] = row.Type || "";
       data[`marketing-content-${code}`] = row.MarketingContent || "";
       data[`disclaimer-content-${code}`] = row.DisclaimerContent || "";
     } else {
-      if (!data["marketing-content-en"] && row.MarketingContent) {
-        data["marketing-content-en"] = row.MarketingContent;
-      }
-      if (!data["disclaimer-content-en"] && row.DisclaimerContent) {
-        data["disclaimer-content-en"] = row.DisclaimerContent;
-      }
+      // Fallback in place if there are non-standard languages
+      if (!data["title-en"] && row.Title) data["title-en"] = row.Title;
+      if (!data["product-en"] && row.Product) data["product-en"] = row.Product;
+      if (!data["type-en"] && row.Type) data["type-en"] = row.Type;
+      if (!data["marketing-content-en"] && row.MarketingContent) data["marketing-content-en"] = row.MarketingContent;
+      if (!data["disclaimer-content-en"] && row.DisclaimerContent) data["disclaimer-content-en"] = row.DisclaimerContent;
     }
 
     if (row.Link) {
-      linkParts.push(`${row.Language || ""}|${row.Link}`);
+      const language = (row.Language || "").trim() || "Unspecified";
+      linkParts.push(`${language}|${row.Link}`);
     }
   }
 
