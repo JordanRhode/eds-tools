@@ -1,0 +1,18 @@
+{
+  "paths": [
+    "/de/nav-footer.html",
+    "/en/nav-footer.html",
+    "/es/nav-footer.html",
+    "/fr/nav-footer.html",
+    "/it/nav-footer.html",
+    "/ja/nav-footer.html",
+    "/ko/nav-footer.html",
+    "/zh/nav-footer.html"
+  ],
+  "replacements": [
+    {
+      "find": "https://ims.evidentscientific.com",
+      "replace": "https://main--eds-website--wabtec-int.aem.page"
+    }
+  ]
+}

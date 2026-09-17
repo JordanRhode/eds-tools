@@ -8,8 +8,8 @@ const repo = process.env.REPO;
 const token = process.env.TOKEN;
 
 const inputData =
-  "https://main--evident-website-eds--evidentscientific.aem.live/en/downloads/download-list.json";
-const outputPathPrefix = "/en/downloads/files";
+  "https://main--evident-website-eds--evidentscientific.aem.live/en/downloads/brochures/download-list.json";
+const outputPathPrefix = "/en/downloads/brochures/files";
 
 const templateSource = fs.readFileSync(
   path.join(__dirname, "page-template.hbs"),

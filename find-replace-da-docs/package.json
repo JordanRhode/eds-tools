@@ -1,0 +1,17 @@
+{
+  "name": "find-replace-da-docs",
+  "version": "1.0.0",
+  "description": "Find and replace text in DA documents for the configured paths",
+  "main": "find-replace-da-docs.js",
+  "scripts": {
+    "start": "node find-replace-da-docs.js",
+    "apply": "node find-replace-da-docs.js --apply"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^17.3.1"
+  }
+}

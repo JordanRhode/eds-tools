@@ -1,0 +1,13 @@
+{
+  "name": "404-checker",
+  "version": "1.0.0",
+  "description": "Validate links from all-pages.txt and split results into success/failure/redirect files",
+  "main": "check-links.js",
+  "scripts": {
+    "start": "node check-links.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
